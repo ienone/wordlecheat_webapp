@@ -18,6 +18,8 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+# --- REPLACE THE `upload_file` FUNCTION in app.py ---
+
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
@@ -33,16 +35,13 @@ def upload_file():
             filename = secure_filename(file.filename)
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(filepath)
-
+            
             # 1. 捕获print输出作为日志
             old_stdout = sys.stdout
             sys.stdout = captured_output = io.StringIO()
             
-            # 2. 调用新的主逻辑函数，它返回结构化数据
-            suggestion, possibilities = main_solver_logic(
-                wordlist_path='wordlist.txt',
-                image_path=filepath
-            )
+            # 2. 调用主逻辑函数
+            suggestion, possibilities = main_solver_logic(image_path=filepath)
             
             # 3. 恢复标准的stdout
             sys.stdout = old_stdout
