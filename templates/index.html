@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordle求解器</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <main class="main-container">
+        <header class="hero-header">
+            <h1>Wordle求解器</h1>
+            <div class="theme-switch-wrapper">
+                <label class="theme-switch" for="theme-checkbox">
+                    <input type="checkbox" id="theme-checkbox" />
+                    <div class="slider round">
+                        <!-- 开关内的太阳和月亮图标 -->
+                        <div class="icon sun">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                        </div>
+                        <div class="icon moon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                        </div>
+                    </div>
+                </label>
+            </div>
+        </header>
+
+        <!-- 上传卡片 -->
+        <section class="card upload-card">
+            <form method="post" enctype="multipart/form-data">
+                <label for="file-upload" class="file-drop-zone">
+                    <div class="icon-upload">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    </div>
+                    <span>点击或拖拽图片到此区域</span>
+                </label>
+                <input id="file-upload" type="file" name="file" hidden required>
+                <span id="file-name-display"></span>
+                <button type="submit" class="submit-button">开始分析</button>
+            </form>
+        </section>
+
+        <!-- 结果展示区域 -->
+        {% if suggestion %}
+        <section class="results-container">
+            <!-- 左侧：用户上传的图片 -->
+            <div class="card image-card animate-in">
+                <h2>截图</h2>
+                <div class="image-wrapper">
+                    <img src="{{ image_url }}" alt="Uploaded Wordle Screenshot">
+                </div>
+            </div>
+
+            <!-- 右侧：分析结果 -->
+            <div class="card result-details-card animate-in" style="--delay: 0.2s;">
+                <h2>分析结果</h2>
+                
+                <div class="suggestion-box">
+                    <span class="suggestion-label">最佳猜测</span>
+                    <p class="hero-suggestion">{{ suggestion }}</p>
+                </div>
+
+                {% if possibilities %}
+                <div class="possibilities-box">
+                    <span class="suggestion-label">其他可能答案 ({{ possibilities|length }}个)</span>
+                    <div class="word-chip-container">
+                        {% for word in possibilities %}
+                            <span class="word-chip">{{ word }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+        {% endif %}
+
+    </main>
+
+    <script>
+        document.getElementById('file-upload').addEventListener('change', function() {
+            var fileNameDisplay = document.getElementById('file-name-display');
+            if (this.files.length > 0) {
+                fileNameDisplay.textContent = `已选择: ${this.files[0].name}`;
+                fileNameDisplay.style.display = 'block';
+            } else {
+                fileNameDisplay.style.display = 'none';
+            }
+        });
+
+        (function() {
+            const themeToggle = document.getElementById('theme-checkbox');
+            const currentTheme = localStorage.getItem('theme');
+            const fileInput = document.getElementById('file-upload');
+            const dropZone = document.querySelector('.file-drop-zone');
+            const fileNameDisplay = document.getElementById('file-name-display');
+
+            // --- 1. 处理文件选择（点击或拖拽成功后）的逻辑 ---
+            fileInput.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    fileNameDisplay.textContent = `已选择: ${this.files[0].name}`;
+                    fileNameDisplay.style.display = 'block';
+                } else {
+                    fileNameDisplay.style.display = 'none';
+                }
+            });
+
+            // --- 2. 添加拖拽事件监听 ---
+            if (dropZone) {
+                // 当文件被拖拽到区域上空时触发
+                dropZone.addEventListener('dragover', function(e) {
+                    e.preventDefault(); // 必须阻止默认行为，否则drop事件不会触发
+                    e.stopPropagation();
+                    this.classList.add('is-dragging'); // 添加高亮样式
+                });
+
+                // 当文件离开拖拽区域时触发
+                dropZone.addEventListener('dragleave', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.classList.remove('is-dragging'); // 移除高亮样式
+                });
+
+                // 当文件在区域内被释放（放下）时触发
+                dropZone.addEventListener('drop', function(e) {
+                    e.preventDefault(); // 必须阻止默认行为，防止浏览器打开文件
+                    e.stopPropagation();
+                    this.classList.remove('is-dragging');
+
+                    const files = e.dataTransfer.files; // 获取拖拽的文件
+
+                    if (files.length > 0) {
+                        // 将拖拽的文件赋值给隐藏的input元素
+                        fileInput.files = files;
+
+                        // 手动触发input的change事件，以执行上面的显示文件名等逻辑
+                        const event = new Event('change', { 'bubbles': true });
+                        fileInput.dispatchEvent(event);
+                    }
+                });
+            }
+            
+            // 函数：应用主题
+            function applyTheme(theme) {
+                document.documentElement.setAttribute('data-theme', theme);
+                if (theme === 'dark') {
+                    themeToggle.checked = true;
+                } else {
+                    themeToggle.checked = false;
+                }
+            }
+
+            // 1. 页面加载时，检查本地存储或系统偏好
+            if (currentTheme) {
+                applyTheme(currentTheme);
+            } else {
+                // 如果用户没有设置过，则跟随系统偏好
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                applyTheme(prefersDark ? 'dark' : 'light');
+            }
+
+            // 2. 监听开关的点击事件
+            themeToggle.addEventListener('change', function() {
+                const theme = this.checked ? 'dark' : 'light';
+                applyTheme(theme);
+                localStorage.setItem('theme', theme); // 保存用户的选择
+            });
+        })();
+
+    </script>
+
+</body>
+</html>

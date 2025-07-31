@@ -1,0 +1,365 @@
+/* --- 1a. 主题与变量定义 (Theme & Variables) --- */
+:root {
+    --font-family: 'Rubik', 'Noto Sans SC', sans-serif;
+
+    --primary-color: #6750A4; /* 主色 - 柔和紫 */
+    --on-primary: #FFFFFF;
+    --primary-container: #EADDFF;
+    --on-primary-container: #21005D;
+    
+    --secondary-color: #006A60; /* 强调色 - 活力绿 */
+    --on-secondary: #FFFFFF;
+    
+    --surface-container-highest: #E6E0E9; /* 卡片背景 */
+    --surface-container-low: #F7F2FA;
+    --on-surface: #1C1B1F; /* 主要文字颜色 */
+    --on-surface-variant: #49454F; /* 次要文字颜色 */
+    
+    --background: #FFFBFE; /* 页面背景 */
+    --outline: #79747E;
+    
+    /* Shape & Motion Tokens */
+    --radius-l: 24px;
+    --radius-m: 16px;
+    --motion-duration: 0.5s;
+    --motion-easing: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+
+/* --- 1b. 黑夜模式主题定义 (Dark Theme Definition) --- */
+[data-theme="dark"] {
+    /* Material 3 Dark Palette */
+    --primary-color: #D0BCFF; /* 主色 - 柔和紫 */
+    --on-primary: #381E72;
+    --primary-container: #4F378B;
+    --on-primary-container: #EADDFF;
+    
+    --secondary-color: #4DDABF; /* 强调色 - 活力绿 */
+    --on-secondary: #003731;
+    
+    --surface-container-highest: #36343B; /* 卡片背景 */
+    --surface-container-low: #1C1B1F;
+    --on-surface: #E6E1E5; /* 主要文字颜色 */
+    --on-surface-variant: #CAC4D0; /* 次要文字颜色 */
+    
+    --background: #141218; /* 页面背景 */
+    --outline: #938F99;
+}
+
+/* --- 2. 全局样式与重置 (Global Styles & Reset) --- */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--background);
+    color: var(--on-surface);
+    margin: 0;
+    padding: 20px;
+}
+
+.main-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* --- 3. 入场动效 (Entrance Animation) --- */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-in {
+    animation: fadeInUp var(--motion-duration) var(--motion-easing) both;
+    animation-delay: var(--delay, 0s);
+}
+
+
+/* --- 4. 页面元素样式 (Page Elements) --- */
+.hero-header {
+    text-align: center;
+    padding: 20px 0 40px 0;
+}
+.hero-header h1 {
+    font-size: clamp(2rem, 5vw, 3rem); /* 响应式字体 */
+    font-weight: 700;
+    margin: 0 0 10px 0;
+}
+.hero-header p {
+    font-size: 1.1rem;
+    color: var(--on-surface-variant);
+    margin: 0;
+}
+
+.card {
+    background: var(--surface-container-low);
+    border-radius: var(--radius-l);
+    padding: 30px;
+    margin-bottom: 30px;
+    border: 1px solid var(--surface-container-highest);
+}
+
+/* 上传区域 */
+.upload-card form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.file-drop-zone {
+    width: 100%;
+    background: var(--background);
+    border: 2px dashed var(--outline);
+    border-radius: var(--radius-m);
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s var(--motion-easing);
+}
+.file-drop-zone:hover {
+    border-color: var(--primary-color);
+    transform: scale(1.02);
+    background: var(--primary-container);
+}
+/* 当文件被拖拽到区域上空时的样式 */
+.file-drop-zone.is-dragging {
+    border-style: solid; 
+    border-color: var(--primary-color);
+    background-color: var(--primary-container);
+    transform: scale(1.03); 
+    box-shadow: 0 0 20px rgba(103, 80, 164, 0.2); 
+}
+.file-drop-zone .icon-upload {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    transition: transform 0.3s var(--motion-easing);
+}
+.file-drop-zone:hover .icon-upload {
+    transform: translateY(-5px);
+}
+.file-drop-zone span {
+    font-weight: 500;
+    color: var(--on-surface-variant);
+}
+#file-name-display {
+    margin-top: 15px;
+    font-size: 0.9rem;
+    color: var(--primary-color);
+    font-weight: 500;
+    display: none;
+}
+
+.submit-button {
+    background-color: var(--primary-color);
+    color: var(--on-primary);
+    border: none;
+    font-size: 1.1rem;
+    font-weight: 500;
+    padding: 16px 40px;
+    border-radius: 50px; /* 胶囊形状 */
+    cursor: pointer;
+    margin-top: 25px;
+    transition: all 0.3s var(--motion-easing);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+.submit-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(103, 80, 164, 0.3);
+}
+.submit-button:active {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(103, 80, 164, 0.2);
+}
+
+/* 结果区域 */
+.results-container {
+    display: grid;
+    grid-template-columns: 1fr; /* 移动端默认单列 */
+    gap: 30px;
+}
+
+.card h2 {
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-weight: 500;
+    color: var(--on-surface-variant);
+}
+
+.image-wrapper {
+    overflow: hidden;
+    border-radius: var(--radius-m);
+}
+.image-wrapper img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.suggestion-box, .possibilities-box {
+    margin-bottom: 30px;
+}
+
+.suggestion-label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--on-surface-variant);
+    margin-bottom: 8px;
+}
+
+.hero-suggestion {
+    font-size: clamp(1rem, 4vw, 1.8rem);
+    font-weight: 500;
+    margin: 0;
+    text-align: center;
+    padding: 20px;
+    border-radius: var(--radius-m);
+    background: linear-gradient(120deg, var(--primary-container), var(--surface-container-highest));
+    color: var(--on-primary-container);
+}
+
+.word-chip-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.word-chip {
+    background-color: var(--surface-container-highest);
+    padding: 8px 18px;
+    border-radius: 50px;
+    font-family: monospace;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--on-surface-variant);
+    transition: all 0.2s ease;
+}
+.word-chip:hover {
+    transform: scale(1.05);
+    background-color: var(--primary-container);
+    color: var(--on-primary-container);
+}
+
+
+/* --- 开关样式 (Theme Switch Styles) --- */
+.hero-header {
+    position: relative;
+    display: flex; /* 使用 flexbox 来垂直居中标题和开关 */
+    justify-content: center;
+    align-items: center;
+    gap: 20px; /* 在标题和开关之间增加一些间距 */
+}
+
+/* 移除绝对定位，让它自然地在flex容器中 */
+.theme-switch-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.theme-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.theme-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--surface-container-highest);
+    transition: .4s var(--motion-easing);
+}
+
+.slider.round {
+    border-radius: 34px;
+}
+
+/* 开关滑块的样式 (小圆点) */
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: var(--on-surface);
+    transition: .4s var(--motion-easing);
+    border-radius: 50%;
+    z-index: 1; /* 确保滑块在图标之上 */
+}
+
+input:checked + .slider {
+    background-color: var(--primary-container);
+}
+
+input:checked + .slider:before {
+    background-color: var(--on-primary-container);
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+/* 开关内部的图标 */
+.slider .icon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    mix-blend-mode: difference;
+    transition: opacity 0.3s ease, transform 0.4s var(--motion-easing);
+    z-index: 2; /* 图标在滑块之下 */
+}
+
+/* 定位太阳图标 */
+.slider .sun {
+    left: 9px; 
+    opacity: 1; /* 默认显示 */
+}
+
+/* 定位月亮图标 */
+.slider .moon {
+    right: 9px; 
+    opacity: 0; /* 默认隐藏 */
+}
+
+/* 当开关被选中(黑夜模式) */
+input:checked + .slider .sun {
+    opacity: 0; /* 隐藏太阳 */
+    transform: translateY(-50%) rotate(15deg) scale(0.5); 
+}
+
+input:checked + .slider .moon {
+    opacity: 1; /* 显示月亮 */
+    transform: translateY(-50%) rotate(0) scale(1); 
+}
+
+/* --- 5. 响应式布局 (Responsive Layout) --- */
+@media (min-width: 900px) {
+    .results-container {
+        /* 在大屏幕上变为两栏，结果栏更宽 */
+        grid-template-columns: 1fr 1.5fr; 
+    }
+}
