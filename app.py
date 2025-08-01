@@ -34,6 +34,12 @@ def upload_file():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            
+            # 在保存文件前，确保目标文件夹存在
+            upload_dir = os.path.dirname(filepath)
+            if not os.path.exists(upload_dir):
+                os.makedirs(upload_dir)
+            
             file.save(filepath)
             
             # 1. 捕获print输出作为日志
